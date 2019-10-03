@@ -10,8 +10,8 @@ hcol <- '#008c99';
 formats <- gsub('.import.rio_','',grep('^\\.import\\.rio_'
                                        ,methods(.import),value=TRUE));
 tryfirst <- intersect(c('xlsx','ods','xls','xml','rdata','r','json'
-                        ,'html','yml','csvy'),formats);
-trylast <- 'dat';
+                        ,'html','yml'),formats);
+trylast <- c('dat','csvy');
 nevertry <- c('clipboard','fortran','csv','csv2','psv','fwf','txt',trylast);
 tryother <- setdiff(formats,c(tryfirst,nevertry));
 tryformats <- c(tryfirst,tryother,trylast);
@@ -98,21 +98,23 @@ server <- function(input, output, session) {
 
   # read with rio ####
   observeEvent(input$import,{
-    readfile <- try(rio::import(rv$infile,which=input$which));
+    readfile <- try(rio::import(rv$infile,which=input$which),silent=TRUE);
     if(is(readfile,'try-error')){
       for(ii in tryformats){
-        readfile <- try(rio::import(rv$infile,format=ii,which=input$which));
-      if(is(readfile,'try-error')){
-        readfile <- try(rio::import(rv$infile,format=ii,which=1));
-        if(!is(readfile,'try-error')){
-          warning('Specified table does not exist in file, '
-                  ,'extracting first available table instead');
-          updateNumericInput(session,inputId = 'which',value=1)
-          break;
-          }
-      } else break;
+        message('Trying format: ',ii);
+        readfile <- try(rio::import(rv$infile,format=ii,which=input$which)
+                        ,silent=TRUE);
+        if(is(readfile,'try-error')){
+          readfile <- try(rio::import(rv$infile,format=ii,which=1),silent=TRUE);
+          if(!is(readfile,'try-error')){
+            warning('Specified table does not exist in file, '
+                    ,'extracting first available table instead');
+            updateNumericInput(session,inputId = 'which',value=1)
+            break;
+            }
+        } else break;
       }
-      }
+    }
     if(is(readfile,'try-error')){
       shinyalert('You have discovered an (as yet) unsupported file',
                 'We would appreciate it if you would submit a bug 
