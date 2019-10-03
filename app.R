@@ -2,6 +2,9 @@
 library(shiny); library(shinyjs); library(shinyalert); library(dplyr); 
 library(DT); library(rio); library(rio.db); library(csvy); 
 library(shinyBS);
+library(data.table);library(readxl);library(feather);library(fst);
+library(rmatio);library(jsonlite);library(readODS);library(xml2);
+library(yaml);
 
 ##### global settings ####
 shinyapps <- file.exists('.shinyapps');
@@ -12,7 +15,7 @@ formats <- gsub('.import.rio_','',grep('^\\.import\\.rio_'
 tryfirst <- intersect(c('xlsx','ods','xls','xml','rdata','r','json'
                         ,'html','yml'),formats);
 trylast <- c('dat','csvy');
-nevertry <- c('clipboard','fortran','csv','csv2','psv','fwf','txt',trylast);
+nevertry <- c('clipboard','fortran','csv','csv2','psv','fwf','txt','eviews',trylast);
 tryother <- setdiff(formats,c(tryfirst,nevertry));
 tryformats <- c(tryfirst,tryother,trylast);
 
