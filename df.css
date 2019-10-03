@@ -21,10 +21,12 @@ h3 {font-family: "Cardo", "Times New Roman", serif;}
   padding-top: 5px;
 }
 
+/*
 #infile_ui>.shiny-input-container {
   margin-top: 2px;
   padding-bottom: 0;
 }
+*/
 #infile_ui input.form-control{
   margin-top: 6px;
 }
@@ -37,10 +39,12 @@ h3 {font-family: "Cardo", "Times New Roman", serif;}
   line-height: 15px;
 }
 
+/*
 #infile_ui>.shiny-input-container { 
   padding-top: 10px;
   margin-bottom: 0; 
 }
+*/
 
 #debug_button {margin-top: 38px;}
 
