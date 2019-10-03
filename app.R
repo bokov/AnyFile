@@ -1,7 +1,8 @@
+##### libraries ####
 library(shiny); library(shinyjs); library(shinyalert); library(dplyr); 
-library(DT); library(rio); library(rio.db);
+library(DT); library(rio); library(rio.db); library(csvy);
 
-# global settings
+##### global settings ####
 shinyapps <- file.exists('.shinyapps');
 source('www/docs/helptext.R');
 hcol <- '#008c99';
@@ -14,50 +15,63 @@ nevertry <- c('clipboard','fortran','csv','csv2','psv','fwf','txt',trylast);
 tryother <- setdiff(formats,c(tryfirst,nevertry));
 tryformats <- c(tryfirst,tryother,trylast);
 
-exportformats <- gsub('.export.rio_','',grep('^\\.export\\.rio_'
-                                             ,methods(.export),value=TRUE));
-
-# Define UI for application that draws a histogram
+neverexport <- c('clipboard','sas7bdat')
+exportformats <- setdiff(gsub('.export.rio_'
+                              ,'',grep('^\\.export\\.rio_'
+                                       ,methods(.export),value=TRUE))
+                         ,neverexport);
+# UI ####
 ui <- fluidPage(
-   # Application title
+   # + Head ####
     tags$head(tags$link(rel="shortcut icon", href="favicon.ico"))
    ,includeCSS('df.css')
    ,useShinyjs()
    ,useShinyalert()
    ,fluidRow(
-     column(1,img(src='sitelogo_color.png',width='45px'))
+     # + Title etc. ####
+     column(1,img(src='sitelogo_color.png',width='45px'),br()
+            ,if(!shinyapps) actionButton('debug','Debug') else c())
      ,column(2,h3("AnyFile",id='apptitle')
              ,"A resource for researchers")
-     ,column(4
+     ,column(5
+             # + File Upload ####
              ,fileInput("infile"
                         ,div("Choose a file to upload and convert to a format"
                              ," of your choice")
                         ,multiple = FALSE,width = '400px'
                         )
-             ,hidden(span(actionButton('import','Interpret File')
-                          ,'Which sheet or table?'
-                          ,numericInput('which','',min=1,max=20,value=1
-                                        ,width = '5vw'),id='importspan'))
+             # + File Convert ####
+             ,hidden(div(hr()
+                         ,numericInput('which','Which sheet or table?'
+                                       ,min=1,max=20,value=1)
+                         ,br()
+                         ,actionButton('import','Interpret File')
+                         ,id='importdiv'))
              ,id='infile_ui')
-     ,column(1,id='helpDebug'
-             ,span(id='hInfile',icon('question-circle'))
-             ,if(!shinyapps) actionButton('debug','Debug') else c()
-     )
    )
   ,fluidRow(column(3,' ')
-            ,column(4,hidden(downloadButton('download','Download As...'))
-                    ,hidden(selectInput('saveas','Format:',choices = exportformats
-                                        ,selected = 'csv')))
+            # + File Download ####
+            ,column(5,hidden(div(hr()
+                                 ,selectInput('saveas','Convert to:'
+                                              ,choices = exportformats
+                                              ,selected = 'csv')
+                                  ,br()
+                                  ,actionButton('convert','Convert File')
+                                  ,id='convertdiv'))
+                    ,hidden(div(hr()
+                                ,downloadButton('download'
+                                               ,'Download Converted File')
+                                ,id='downloaddiv'))
+                    )
             )
 )
 
-# Define server logic 
+# Server ####
 server <- function(input, output) {
-   
+  # reactive values ####
   rv <- reactiveValues(disclaimerAgreed=F);
-  # user agreement
+  # user agreement ####
   shinyalert('User Agreement',text=helptext$disclaimer
-             # user agreement ----
              ,html=T,confirmButtonText = 'I agree',confirmButtonCol = hcol
              ,className = 'dfDisclaimer',closeOnEsc = F
              ,animation = 'slide-from-top'
@@ -65,15 +79,19 @@ server <- function(input, output) {
                rv[['disclaimerAgreed']] <- T;
                show('infile')});
 
-  # record file info
-  observeEvent(c(input$infile,rv$disclaimerAgreed),{
+  # record file info ####
+  observeEvent(c(input$infile,rv$disclaimerAgreed,input$which),{
     req(input$infile$datapath,rv$disclaimerAgreed);
     rv$infile <- input$infile$datapath;
     rv$infilename <- input$infile$name;
-    show('importspan');
+    show('importdiv');
+    hide('convertdiv');hide('downloaddiv');
     });
   
-  # try reading the file with rio
+  # change in output format ####
+  observeEvent(input$which,hide('downloaddiv'));
+
+  # read with rio ####
   observeEvent(input$import,{
     readfile <- try(rio::import(rv$infile,which=input$which));
     if(is(readfile,'try-error')){
@@ -88,39 +106,38 @@ server <- function(input, output) {
                   so we can figure out a way to make this app work for
                   your file as well.
                  ',type='warning')
-    } else rv$readfile <- readfile;
+    } else {
+      rv$readfile <- readfile;
+      show('convertdiv');
+      hide('downloaddiv')
+    }
   })
   
-  # display save widgets
-  observeEvent(rv$readfile,{
-    show('saveas');
-    hide('download');
-  })
-  
-  observeEvent(input$saveas, if(!is.null(rv$readfile)){
+  # convert with rio ####
+  observeEvent(input$convert,{
     out <- try(export(rv$readfile
-                  ,file = tempfile(fileext = paste0('.',input$saveas))
-                  ,format=input$saveas));
+                      ,file = tempfile(fileext = paste0('.',input$saveas))
+                      ,format=input$saveas));
     if(is(out,'try-error')) shinyalert('Error converting file',as.character(out))
     else {
       fnicename <- paste0(tools::file_path_sans_ext(rv$infilename)
                           ,'.',input$saveas);
-      output$outdownload <- downloadHandler(filename=fnicename
-                                            ,content=function(con) {
-                                              file.copy(out,con)});
-      show('download');
+      output$download <- downloadHandler(filename=fnicename
+                                         ,content=function(con) {
+                                           file.copy(out,con)});
+      show('downloaddiv');
     }
   })
   
-  # render datatable
+  # render datatable #### 
   
-  # Testing ----
+  # debug ####
   observeEvent(input$debug,{
     browser();
   });
   
 }
 
-# Run the application 
+# Run the application ####
 shinyApp(ui = ui, server = server)
 
