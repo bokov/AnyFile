@@ -1,6 +1,7 @@
 ##### libraries ####
 library(shiny); library(shinyjs); library(shinyalert); library(dplyr); 
-library(DT); library(rio); library(rio.db); library(csvy);
+library(DT); library(rio); library(rio.db); library(csvy); 
+library(shinyBS);
 
 ##### global settings ####
 shinyapps <- file.exists('.shinyapps');
@@ -15,7 +16,7 @@ nevertry <- c('clipboard','fortran','csv','csv2','psv','fwf','txt',trylast);
 tryother <- setdiff(formats,c(tryfirst,nevertry));
 tryformats <- c(tryfirst,tryother,trylast);
 
-neverexport <- c('clipboard','sas7bdat')
+neverexport <- c('clipboard','sqlite','pzfx');
 exportformats <- setdiff(gsub('.export.rio_'
                               ,'',grep('^\\.export\\.rio_'
                                        ,methods(.export),value=TRUE))
@@ -64,10 +65,14 @@ ui <- fluidPage(
                                 ,id='downloaddiv'))
                     )
             )
+  ,hidden(fluidRow(column(12,bsCollapsePanel(span("Preview"
+                                          ,icon('angle-down'))
+                                     ,dataTableOutput('preview')))
+            ,id='previewrow'))
 )
 
 # Server ####
-server <- function(input, output) {
+server <- function(input, output, session) {
   # reactive values ####
   rv <- reactiveValues(disclaimerAgreed=F);
   # user agreement ####
@@ -85,11 +90,11 @@ server <- function(input, output) {
     rv$infile <- input$infile$datapath;
     rv$infilename <- input$infile$name;
     show('importdiv');
-    hide('convertdiv');hide('downloaddiv');
+    hide('convertdiv');hide('downloaddiv');hide('previewrow');
     });
   
   # change in output format ####
-  observeEvent(input$which,hide('downloaddiv'));
+  observeEvent(input$saveas, hide('downloaddiv'));
 
   # read with rio ####
   observeEvent(input$import,{
@@ -102,6 +107,7 @@ server <- function(input, output) {
         if(!is(readfile,'try-error')){
           warning('Specified table does not exist in file, '
                   ,'extracting first available table instead');
+          updateNumericInput(session,inputId = 'which',value=1)
           break;
           }
       } else break;
@@ -116,14 +122,16 @@ server <- function(input, output) {
                ',type='warning')
       } else {
         rv$readfile <- readfile;
-        show('convertdiv');
-        hide('downloaddiv')
+        show('convertdiv'); show('previewrow')
+        hide('downloaddiv');
         }
     });
   
   # convert with rio ####
   observeEvent(input$convert,{
-    out <- try(export(rv$readfile
+    out <- try(export(setNames(rv$readfile
+                               ,nm=gsub('\\.','_'
+                                        ,make.names(names(rv$readfile))))
                       ,file = tempfile(fileext = paste0('.',input$saveas))
                       ,format=input$saveas));
     if(is(out,'try-error')) shinyalert('Error converting file',as.character(out))
@@ -138,7 +146,14 @@ server <- function(input, output) {
   })
   
   # render datatable #### 
-  
+  output$preview <- renderDataTable({
+    DT::datatable(rv$readfile,extensions = 'Scroller'
+                  ,autoHideNavigation=T,rownames=F,fillContainer=T
+                  ,options=list(processing=T,searching=F,scroller=T
+                                ,scrollx='100%',scrolly='20vh'
+                                ,dom='Bfrtip'
+                                ))
+    },server=FALSE);
   # debug ####
   observeEvent(input$debug,{
     browser();
