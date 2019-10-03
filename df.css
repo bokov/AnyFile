@@ -31,6 +31,8 @@ h3 {font-family: "Cardo", "Times New Roman", serif;}
   margin-top: 6px;
 }
 
+#which {padding: 4px;}
+
 /* progress bar styling */
 #infile_progress { margin: 1px 0; height: 15px;}
 #infile_progress>.progress-bar{
