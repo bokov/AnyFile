@@ -1,9 +1,9 @@
 PackratFormat: 1.4
 PackratVersion: 0.4.8.1
 RVersion: 3.4.4
-Repos: BioCsoft=https://bioconductor.org/packages/3.6/bioc,
-    BioCann=https://bioconductor.org/packages/3.6/data/annotation,
-    BioCexp=https://bioconductor.org/packages/3.6/data/experiment,
+Repos: BioCsoft=http://bioconductor.org/packages/3.6/bioc,
+    BioCann=http://bioconductor.org/packages/3.6/data/annotation,
+    BioCexp=http://bioconductor.org/packages/3.6/data/experiment,
     CRAN=https://cloud.r-project.org
 
 Package: BH
@@ -136,6 +136,12 @@ Source: CRAN
 Version: 1.0.0
 Hash: c13adea5906fbe2becfcb5f843b26749
 Requires: R6, ggplot2, htmltools, jsonlite, lazyeval, shiny
+
+Package: csvy
+Source: CRAN
+Version: 0.3.0
+Hash: 48ce66ac6f6181e65717a6f750d8db80
+Requires: data.table, jsonlite, yaml
 
 Package: curl
 Source: CRAN
