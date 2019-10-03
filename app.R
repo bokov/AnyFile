@@ -95,23 +95,31 @@ server <- function(input, output) {
   observeEvent(input$import,{
     readfile <- try(rio::import(rv$infile,which=input$which));
     if(is(readfile,'try-error')){
-      for(ii in tryformats) readfile <- try(rio::import(rv$infile,format=ii
-                                                        ,which=input$which));
-      if(!is(readfile,'try-error')) break;
-    }
+      for(ii in tryformats){
+        readfile <- try(rio::import(rv$infile,format=ii,which=input$which));
+      if(is(readfile,'try-error')){
+        readfile <- try(rio::import(rv$infile,format=ii,which=1));
+        if(!is(readfile,'try-error')){
+          warning('Specified table does not exist in file, '
+                  ,'extracting first available table instead');
+          break;
+          }
+      } else break;
+      }
+      }
     if(is(readfile,'try-error')){
       shinyalert('You have discovered an (as yet) unsupported file',
-                 'We would appreciate it if you would submit a bug 
-                  report to https://github.com/bokov/AnyFile/issues/new
-                  so we can figure out a way to make this app work for
-                  your file as well.
-                 ',type='warning')
-    } else {
-      rv$readfile <- readfile;
-      show('convertdiv');
-      hide('downloaddiv')
-    }
-  })
+                'We would appreciate it if you would submit a bug 
+                report to https://github.com/bokov/AnyFile/issues/new
+                so we can figure out a way to make this app work for
+                your file as well.
+               ',type='warning')
+      } else {
+        rv$readfile <- readfile;
+        show('convertdiv');
+        hide('downloaddiv')
+        }
+    });
   
   # convert with rio ####
   observeEvent(input$convert,{
