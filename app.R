@@ -1,25 +1,18 @@
 ##### libraries ####
 library(shiny); library(shinyjs); library(shinyalert); library(dplyr); 
-library(DT); library(csvy); 
-library(shinyBS);
-library(data.table);library(readxl); #library(feather);library(fst);
-#library(rmatio);library(jsonlite);library(readODS);library(xml2);
-#library(yaml);
-library(markdown);
-#library(devtools);
+library(DT); library(shinyBS); library(data.table); library(markdown);
 library(rio);
-# sideload <- c(rio='rio_0.5.20.tar.gz');
-# if (!file.exists("R-lib")) dir.create("R-lib");
-# .libPaths( c(normalizePath("R-lib/"), .libPaths()) );
-# 
-# for(ii in names(sideload)){
-#   if(file.exists(sideload[ii])) install.packages(sideload[ii],repos = NULL);
-#   if (!do.call(require, list(ii))) install.packages(sideload[ii], repos = NULL
-#                                                     , type = "source");
-#   do.call(require,list(ii));
-# }
 
-
+requireNamespace('readxl');
+requireNamespace('feather');
+requireNamespace('fst');
+requireNamespace('rmatio');
+requireNamespace('jsonlite');
+requireNamespace('readODS');
+requireNamespace('xml2');
+requireNamespace('yaml');
+requireNamespace('pzfx');
+requireNamespace('csvy');
 ##### global settings ####
 shinyapps <- file.exists('.shinyapps');
 source('www/docs/helptext.R');
@@ -27,13 +20,13 @@ hcol <- '#008c99';
 formats <- gsub('.import.rio_','',grep('^\\.import\\.rio_'
                                        ,methods(.import),value=TRUE));
 tryfirst <- intersect(c('xlsx','ods','xls','xml','rdata','r','json'
-                        ,'html','yml'),formats);
-trylast <- c('dat','csvy');
+                        ,'html'),formats);
+trylast <- c('dat','csvy','yml');
 nevertry <- c('clipboard','fortran','csv','csv2','psv','fwf','txt','eviews',trylast);
 tryother <- setdiff(formats,c(tryfirst,nevertry));
 tryformats <- c(tryfirst,tryother,trylast);
 
-neverexport <- c('clipboard','sqlite','pzfx');
+neverexport <- c('clipboard','sqlite');
 exportformats <- setdiff(gsub('.export.rio_'
                               ,'',grep('^\\.export\\.rio_'
                                        ,methods(.export),value=TRUE))
@@ -148,18 +141,28 @@ server <- function(input, output, session) {
   
   # convert with rio ####
   observeEvent(input$convert,{
-    out <- try(export(setNames(rv$readfile
-                               ,nm=gsub('\\.','_'
-                                        ,make.names(names(rv$readfile))))
+    out <- setNames(rv$readfile,nm=gsub('\\.','_'
+                                            ,make.names(names(rv$readfile)
+                                                        ,unique = TRUE)));
+    # hack to avoid errors on pzfx
+    if(input$saveas == 'pzfx') for(ii in names(out)){
+      if(inherits(out[[ii]],c('character','factor'))){
+        out[[ii]] <- as.numeric(factor(out[[ii]]));
+        showNotification(sprintf('Column %s converted to numeric',ii)
+                         ,type='warning');
+      }
+    }
+    result <- try(export(out
                       ,file = tempfile(fileext = paste0('.',input$saveas))
                       ,format=input$saveas));
-    if(is(out,'try-error')) shinyalert('Error converting file',as.character(out))
+    if(is(result,'try-error')) shinyalert('Error converting file'
+                                          ,as.character(result))
     else {
       fnicename <- paste0(tools::file_path_sans_ext(rv$infilename)
                           ,'.',input$saveas);
       output$download <- downloadHandler(filename=fnicename
                                          ,content=function(con) {
-                                           file.copy(out,con)});
+                                           file.copy(result,con)});
       show('downloaddiv');
     }
   })
