@@ -1,10 +1,24 @@
 ##### libraries ####
 library(shiny); library(shinyjs); library(shinyalert); library(dplyr); 
-library(DT); library(rio); library(rio.db); library(csvy); 
+library(DT); library(csvy); 
 library(shinyBS);
-library(data.table);library(readxl);library(feather);library(fst);
-library(rmatio);library(jsonlite);library(readODS);library(xml2);
-library(yaml);
+library(data.table);library(readxl); #library(feather);library(fst);
+#library(rmatio);library(jsonlite);library(readODS);library(xml2);
+#library(yaml);
+library(markdown);
+#library(devtools);
+library(rio);
+# sideload <- c(rio='rio_0.5.20.tar.gz');
+# if (!file.exists("R-lib")) dir.create("R-lib");
+# .libPaths( c(normalizePath("R-lib/"), .libPaths()) );
+# 
+# for(ii in names(sideload)){
+#   if(file.exists(sideload[ii])) install.packages(sideload[ii],repos = NULL);
+#   if (!do.call(require, list(ii))) install.packages(sideload[ii], repos = NULL
+#                                                     , type = "source");
+#   do.call(require,list(ii));
+# }
+
 
 ##### global settings ####
 shinyapps <- file.exists('.shinyapps');
@@ -101,14 +115,14 @@ server <- function(input, output, session) {
 
   # read with rio ####
   observeEvent(input$import,{
-    readfile <- try(rio::import(rv$infile,which=input$which),silent=TRUE);
+    readfile <- try(import(rv$infile,which=input$which),silent=TRUE);
     if(is(readfile,'try-error')){
       for(ii in tryformats){
         message('Trying format: ',ii);
-        readfile <- try(rio::import(rv$infile,format=ii,which=input$which)
+        readfile <- try(import(rv$infile,format=ii,which=input$which)
                         ,silent=TRUE);
         if(is(readfile,'try-error')){
-          readfile <- try(rio::import(rv$infile,format=ii,which=1),silent=TRUE);
+          readfile <- try(import(rv$infile,format=ii,which=1),silent=TRUE);
           if(!is(readfile,'try-error')){
             warning('Specified table does not exist in file, '
                     ,'extracting first available table instead');
