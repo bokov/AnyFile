@@ -14,7 +14,8 @@ requireNamespace('yaml');
 requireNamespace('pzfx');
 requireNamespace('csvy');
 ##### global settings ####
-shinyapps <- file.exists('.shinyapps');
+debug <- file.exists('.debug');
+gitlink <- 'https://github.com/bokov/anyfile'
 source('www/docs/helptext.R');
 hcol <- '#008c99';
 formats <- gsub('.import.rio_','',grep('^\\.import\\.rio_'
@@ -41,13 +42,21 @@ ui <- fluidPage(
    ,fluidRow(
      # + Title etc. ####
      column(1,img(src='sitelogo_color.png',width='45px'),br()
-            ,if(!shinyapps) actionButton('debug','Debug') else c())
+            ,if(debug) actionButton('debug','Debug') else c())
      ,column(2,h3("AnyFile",id='apptitle')
              ,"A resource for researchers")
-     ,column(5
-             # + File Upload ####
-             ,fileInput("infile"
-                        ,div("Choose a file to upload and convert to a format"
+     ,column(5,em('A free, open-source webapp by Alex Bokov, PhD'
+                  ,'made possible by support from'
+                  ,'NIH/NCATS UL1TR001120 (IIMS) and the'
+                  ,'Long School of Medicine KL2 Award.'
+                  ,'Uses the',a('rio library'
+                                ,href='https://github.com/leeper/rio')
+                  ,'by Thomas J. Leeper, PhD'
+                  ,'Source code available on',a('GitHub',href=gitlink
+                                               ,target='_blank'))))
+     ,fluidRow(# + File Upload ####
+               fileInput("infile"
+                         ,div("Choose a file to upload and convert to a format"
                              ," of your choice")
                         ,multiple = FALSE,width = '400px'
                         )
@@ -59,7 +68,6 @@ ui <- fluidPage(
                          ,actionButton('import','Interpret File')
                          ,id='importdiv'))
              ,id='infile_ui')
-   )
   ,fluidRow(column(3,' ')
             # + File Download ####
             ,column(5,hidden(div(hr()
