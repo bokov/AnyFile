@@ -71,7 +71,7 @@ ui <- fluidPage(
                       ,fileInput("infile"
                                  ,div("Choose a file to upload and convert to a"
                                       ," format of your choice")
-                                 ,multiple = FALSE,width = '400px'
+                                 ,multiple = FALSE,width = '100%'
                                  ))
                ,column(1))
    # + File Convert ####
@@ -86,7 +86,7 @@ ui <- fluidPage(
                            ,numericInput('which',span('Which sheet or table? '
                                          ,'(if in doubt, you can leave it as-is'
                                          ,' and just click the button below)')
-                                         ,min=1,max=20,value=1,width='90%')
+                                         ,min=1,max=20,value=1,width='100%')
                            ,br()
                            ,actionButton('import','Interpret File'))
                     ,column(1),id='importdiv'))
