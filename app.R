@@ -46,7 +46,7 @@ ui <- fluidPage(
             ,if(debug) actionButton('debug','Debug') else c())
      ,column(2,h3("AnyFile",id='apptitle')
              ,"A resource for researchers")
-     ,column(5,em('A free, open-source webapp by Alex Bokov, PhD'
+     ,column(8,em('A free, open-source webapp by Alex Bokov, PhD'
                   ,'made possible by support from'
                   ,'NIH/NCATS UL1TR001120 (IIMS) and the'
                   ,'Long School of Medicine KL2 Award.'
@@ -54,9 +54,11 @@ ui <- fluidPage(
                                 ,href='https://github.com/leeper/rio')
                   ,'by Thomas J. Leeper, PhD'
                   ,'Source code available on',a('GitHub',href=gitlink
-                                               ,target='_blank'))))
+                                               ,target='_blank')))
+     ,column(1))
      ,fluidRow(# + File Upload ####
-               column(8,hr()
+               column(1)
+               ,column(10,hr()
                       ,p("Sometimes you are provided data in an unfamiliar"
                          ," format, or in a format that needs software"
                          ," that you do not own, or even a format that is"
@@ -70,10 +72,11 @@ ui <- fluidPage(
                                  ,div("Choose a file to upload and convert to a"
                                       ," format of your choice")
                                  ,multiple = FALSE,width = '400px'
-                                 )
-                      ))
+                                 ))
+               ,column(1))
    # + File Convert ####
-   ,hidden(fluidRow(column(8,hr()
+   ,hidden(fluidRow(column(1)
+                    ,column(10,hr()
                            ,p("Some data formats (e.g. Excel and OpenOffice)"
                               ," may contain multiple tables of data. Here you"
                               ," are being asked which one to import in such a"
@@ -86,13 +89,14 @@ ui <- fluidPage(
                                          ,min=1,max=20,value=1,width='90%')
                            ,br()
                            ,actionButton('import','Interpret File'))
-                         ,id='importdiv'))
-   ,hidden(fluidRow(column(8,hr(),bsCollapsePanel(span("Preview"
+                    ,column(1),id='importdiv'))
+   ,hidden(fluidRow(column(1),column(10,hr(),bsCollapsePanel(span("Preview"
                                                        ,icon('angle-down'))
                                                   ,dataTableOutput('preview')))
-                    ,id='previewrow'))
+                    ,column(1),id='previewrow'))
    ,fluidRow(# + File Download ####
-            column(8,hidden(div(hr()
+            column(1)
+            ,column(10,hidden(div(hr()
                                  ,selectInput('saveas','Convert to:'
                                               ,choices = exportformats
                                               ,selected = 'csv')
@@ -104,6 +108,7 @@ ui <- fluidPage(
                                                ,'Download Converted File')
                                 ,id='downloaddiv'))
                     )
+            ,column(1)
             )
 )
 
