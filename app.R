@@ -2,6 +2,7 @@
 library(shiny); library(shinyjs); library(shinyalert); library(dplyr); 
 library(DT); library(shinyBS); library(data.table); library(markdown);
 library(rio);
+source('functions.R');
 
 requireNamespace('readxl');
 requireNamespace('feather');
@@ -14,7 +15,8 @@ requireNamespace('yaml');
 requireNamespace('pzfx');
 requireNamespace('csvy');
 ##### global settings ####
-shinyapps <- file.exists('.shinyapps');
+debug <- file.exists('.debug');
+gitlink <- 'https://github.com/bokov/anyfile'
 source('www/docs/helptext.R');
 hcol <- '#008c99';
 formats <- gsub('.import.rio_','',grep('^\\.import\\.rio_'
@@ -41,28 +43,60 @@ ui <- fluidPage(
    ,fluidRow(
      # + Title etc. ####
      column(1,img(src='sitelogo_color.png',width='45px'),br()
-            ,if(!shinyapps) actionButton('debug','Debug') else c())
+            ,if(debug) actionButton('debug','Debug') else c())
      ,column(2,h3("AnyFile",id='apptitle')
              ,"A resource for researchers")
-     ,column(5
-             # + File Upload ####
-             ,fileInput("infile"
-                        ,div("Choose a file to upload and convert to a format"
-                             ," of your choice")
-                        ,multiple = FALSE,width = '400px'
-                        )
-             # + File Convert ####
-             ,hidden(div(hr()
-                         ,numericInput('which','Which sheet or table?'
-                                       ,min=1,max=20,value=1)
-                         ,br()
-                         ,actionButton('import','Interpret File')
-                         ,id='importdiv'))
-             ,id='infile_ui')
-   )
-  ,fluidRow(column(3,' ')
-            # + File Download ####
-            ,column(5,hidden(div(hr()
+     ,column(8,em('A free, open-source webapp by Alex Bokov, PhD'
+                  ,'made possible by support from'
+                  ,'NIH/NCATS UL1TR001120 (IIMS) and the'
+                  ,'Long School of Medicine KL2 Award.'
+                  ,'Makes use of the',a('rio library'
+                                ,href='https://github.com/leeper/rio')
+                  ,'by Thomas J. Leeper, PhD'
+                  ,'Source code available on',a('GitHub',href=gitlink
+                                               ,target='_blank')))
+     ,column(1))
+     ,fluidRow(# + File Upload ####
+               column(1)
+               ,column(10,hr()
+                      ,p("Sometimes you are provided data in an unfamiliar"
+                         ," format, or in a format that needs software"
+                         ," that you do not own, or even a format that is"
+                         ," completely unknown. ", tags$b('AnyFile')
+                         ," supports over a "
+                         ," dozen of the most common data formats and will"
+                         ," do its level best to find a way to read your"
+                         ," data, then give you a choice of formats"
+                         ," into which you can convert it.")
+                      ,fileInput("infile"
+                                 ,div("Choose a file to upload and convert to a"
+                                      ," format of your choice")
+                                 ,multiple = FALSE,width = '400px'
+                                 ))
+               ,column(1))
+   # + File Convert ####
+   ,hidden(fluidRow(column(1)
+                    ,column(10,hr()
+                           ,p("Some data formats (e.g. Excel and OpenOffice)"
+                              ," may contain multiple tables of data. Here you"
+                              ," are being asked which one to import in such a"
+                              ," case. If the one you specify is not available "
+                              ,tags$b('AnyFile')," will go back to importing"
+                              ," the first one it finds.")
+                           ,numericInput('which',span('Which sheet or table? '
+                                         ,'(if in doubt, you can leave it as-is'
+                                         ,' and just click the button below)')
+                                         ,min=1,max=20,value=1,width='90%')
+                           ,br()
+                           ,actionButton('import','Interpret File'))
+                    ,column(1),id='importdiv'))
+   ,hidden(fluidRow(column(1),column(10,hr(),bsCollapsePanel(span("Preview"
+                                                       ,icon('angle-down'))
+                                                  ,dataTableOutput('preview')))
+                    ,column(1),id='previewrow'))
+   ,fluidRow(# + File Download ####
+            column(1)
+            ,column(10,hidden(div(hr()
                                  ,selectInput('saveas','Convert to:'
                                               ,choices = exportformats
                                               ,selected = 'csv')
@@ -74,11 +108,8 @@ ui <- fluidPage(
                                                ,'Download Converted File')
                                 ,id='downloaddiv'))
                     )
+            ,column(1)
             )
-  ,hidden(fluidRow(column(12,bsCollapsePanel(span("Preview"
-                                          ,icon('angle-down'))
-                                     ,dataTableOutput('preview')))
-            ,id='previewrow'))
 )
 
 # Server ####
@@ -108,23 +139,7 @@ server <- function(input, output, session) {
 
   # read with rio ####
   observeEvent(input$import,{
-    readfile <- try(import(rv$infile,which=input$which),silent=TRUE);
-    if(is(readfile,'try-error')){
-      for(ii in tryformats){
-        message('Trying format: ',ii);
-        readfile <- try(import(rv$infile,format=ii,which=input$which)
-                        ,silent=TRUE);
-        if(is(readfile,'try-error')){
-          readfile <- try(import(rv$infile,format=ii,which=1),silent=TRUE);
-          if(!is(readfile,'try-error')){
-            warning('Specified table does not exist in file, '
-                    ,'extracting first available table instead');
-            updateNumericInput(session,inputId = 'which',value=1)
-            break;
-            }
-        } else break;
-      }
-    }
+    readfile <- try(try_import(rv$infile,which=input$which),silent=TRUE);
     if(is(readfile,'try-error')){
       shinyalert('You have discovered an (as yet) unsupported file',
                 'We would appreciate it if you would submit a bug 
