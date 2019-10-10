@@ -50,28 +50,49 @@ ui <- fluidPage(
                   ,'made possible by support from'
                   ,'NIH/NCATS UL1TR001120 (IIMS) and the'
                   ,'Long School of Medicine KL2 Award.'
-                  ,'Uses the',a('rio library'
+                  ,'Makes use of the',a('rio library'
                                 ,href='https://github.com/leeper/rio')
                   ,'by Thomas J. Leeper, PhD'
                   ,'Source code available on',a('GitHub',href=gitlink
                                                ,target='_blank'))))
      ,fluidRow(# + File Upload ####
-               fileInput("infile"
-                         ,div("Choose a file to upload and convert to a format"
-                             ," of your choice")
-                        ,multiple = FALSE,width = '400px'
-                        )
-             # + File Convert ####
-             ,hidden(div(hr()
-                         ,numericInput('which','Which sheet or table?'
-                                       ,min=1,max=20,value=1)
-                         ,br()
-                         ,actionButton('import','Interpret File')
+               column(8,hr()
+                      ,p("Sometimes you are provided data in an unfamiliar"
+                         ," format, or in a format that needs software"
+                         ," that you do not own, or even a format that is"
+                         ," completely unknown. ", tags$b('AnyFile')
+                         ," supports over a "
+                         ," dozen of the most common data formats and will"
+                         ," do its level best to find a way to read your"
+                         ," data, then give you a choice of formats"
+                         ," into which you can convert it.")
+                      ,fileInput("infile"
+                                 ,div("Choose a file to upload and convert to a"
+                                      ," format of your choice")
+                                 ,multiple = FALSE,width = '400px'
+                                 )
+                      ))
+   # + File Convert ####
+   ,hidden(fluidRow(column(8,hr()
+                           ,p("Some data formats (e.g. Excel and OpenOffice)"
+                              ," may contain multiple tables of data. Here you"
+                              ," are being asked which one to import in such a"
+                              ," case. If the one you specify is not available "
+                              ,tags$b('AnyFile')," will go back to importing"
+                              ," the first one it finds.")
+                           ,numericInput('which',span('Which sheet or table? '
+                                         ,'(if in doubt, you can leave it as-is'
+                                         ,' and just click the button below)')
+                                         ,min=1,max=20,value=1,width='90%')
+                           ,br()
+                           ,actionButton('import','Interpret File'))
                          ,id='importdiv'))
-             ,id='infile_ui')
-  ,fluidRow(column(3,' ')
-            # + File Download ####
-            ,column(5,hidden(div(hr()
+   ,hidden(fluidRow(column(8,hr(),bsCollapsePanel(span("Preview"
+                                                       ,icon('angle-down'))
+                                                  ,dataTableOutput('preview')))
+                    ,id='previewrow'))
+   ,fluidRow(# + File Download ####
+            column(8,hidden(div(hr()
                                  ,selectInput('saveas','Convert to:'
                                               ,choices = exportformats
                                               ,selected = 'csv')
@@ -84,10 +105,6 @@ ui <- fluidPage(
                                 ,id='downloaddiv'))
                     )
             )
-  ,hidden(fluidRow(column(12,bsCollapsePanel(span("Preview"
-                                          ,icon('angle-down'))
-                                     ,dataTableOutput('preview')))
-            ,id='previewrow'))
 )
 
 # Server ####
