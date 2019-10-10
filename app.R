@@ -36,7 +36,8 @@ exportformats <- setdiff(gsub('.export.rio_'
 # UI ####
 ui <- fluidPage(
    # + Head ####
-    tags$head(tags$link(rel="shortcut icon", href="favicon.ico"))
+    tags$head(tags$link(rel="shortcut icon", href="favicon.ico")
+              ,includeScript("ga.js"))
    ,includeCSS('df.css')
    ,useShinyjs()
    ,useShinyalert()
@@ -52,8 +53,8 @@ ui <- fluidPage(
                   ,'Long School of Medicine KL2 Award.'
                   ,'Makes use of the',a('rio library'
                                 ,href='https://github.com/leeper/rio')
-                  ,'by Thomas J. Leeper, PhD'
-                  ,'Source code available on',a('GitHub',href=gitlink
+                  ,' by Thomas J. Leeper, PhD.'
+                  ,' Source code available on',a('GitHub',href=gitlink
                                                ,target='_blank')))
      ,column(1))
      ,fluidRow(# + File Upload ####
