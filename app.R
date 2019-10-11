@@ -138,6 +138,11 @@ server <- function(input, output, session) {
   
   # change in output format ####
   observeEvent(input$saveas, hide('downloaddiv'));
+  
+  # detect download ####
+  onclick('download',updateTextInput(session,'download_clicked'
+                                     ,value = as.numeric(Sys.time()))
+          ,add = TRUE);
 
   # read with rio ####
   observeEvent(input$import,{
@@ -194,10 +199,6 @@ server <- function(input, output, session) {
                                 ))
     },server=FALSE);
   
-  # detect download ####
-  onclick('download',updateTextInput('download_clicked'
-                                     ,value = as.numeric(Sys.time()))
-          ,add = TRUE);
 
   # debug ####
   observeEvent(input$debug,{
