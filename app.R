@@ -104,6 +104,7 @@ ui <- fluidPage(
                                   ,br()
                                   ,actionButton('convert','Convert File')
                                   ,id='convertdiv'))
+                    ,hidden(textInput('download_clicked',label = '',value = ''))
                     ,hidden(div(hr()
                                 ,downloadButton('download'
                                                ,'Download Converted File')
@@ -192,6 +193,12 @@ server <- function(input, output, session) {
                                 ,dom='Bfrtip'
                                 ))
     },server=FALSE);
+  
+  # detect download ####
+  onclick('download',updateTextInput('download_clicked'
+                                     ,value = as.numeric(Sys.time()))
+          ,add = TRUE);
+
   # debug ####
   observeEvent(input$debug,{
     browser();
