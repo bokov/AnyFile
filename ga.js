@@ -15,18 +15,13 @@ function getCookie(name) {
 m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m);
 })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
 
-if( getCookie('shinyid') === undefined ){
-  document.cookie = 'shinyid='+uuidv4()+'; expires=Fri, 01 Jan 2100 12:00:00 UTC';
-}
-shinyid = getCookie('shinyid');
-
 ga('create', 'UA-149767044-1', 'auto');
 
 
 /* If the browser_id hasn't already been set... */
 if (document.cookie.indexOf('browser_uuid_set=1') == -1) {
   /* Generate a UUID, and assign it to the browser_id custom dimension */
-  ga('set', 'dimension1', uuid.v4());
+  ga('set', 'dimension1', uuidv4());
   /* Set a cookie so we won't override the UUID we just set */
   document.cookie = 'browser_uuid_set=1; expires=Fri, 01 Jan 2100 12:00:00 UTC; domain=.arem.us; path=/';
 }
@@ -35,15 +30,21 @@ ga('set', 'dimension2', new Date().getTime());
 ga('send', 'pageview');
 
 $(document).on('shiny:inputchanged', function(event) {
-     //document.lastevent = event;
-     val = event.value;
-     valtype = Object.prototype.toString.call(val);
-     // if event value is non-atomic, replace with placeholder
-     if(['[object Number]','[object String]','[object Boolean]']
-      .indexOf(valtype) == -1){
-        if(valtype == '[object Array]'){val = val.toString();} else{
-          val = valtype;}
-     }
-     ga('set', 'dimension2', new Date().getTime());
-     ga('send','event',event.name, val, event.name, val);
-  });
+     if(['.clientdata_output_preview_hidden',
+         '.clientdata_output_download_hidden'].indexOf(event.name) == -1){
+           val = event.value;
+           valtype = Object.prototype.toString.call(val);
+           if(valtype == '[object Object]'){ document.debugevent = event;
+           }
+           // if event value is non-atomic, replace with an atomic value
+           if(event.name == 'infile'){
+             val = Object.prototype.toSource.call(val[0]);
+           } else if(['[object Number]','[object String]','[object Boolean]']
+            .indexOf(valtype) == -1){
+              if(valtype == '[object Array]'){val = val.toString();
+              } else{
+                val = valtype;}
+            }
+            ga('set', 'dimension2', new Date().getTime());
+            ga('send','event',event.name, val, event.name, val);}
+});
