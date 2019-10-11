@@ -30,16 +30,20 @@ ga('set', 'dimension2', new Date().getTime());
 ga('send', 'pageview');
 
 $(document).on('shiny:inputchanged', function(event) {
+     // scrub out any user data content or replicative data
      if(['.clientdata_output_preview_hidden',
-         '.clientdata_output_download_hidden'].indexOf(event.name) == -1){
+         '.clientdata_output_download_hidden',
+         'preview_rows_selected',
+         'preview_row_last_clicked',
+         'preview_rows_current',
+         'preview_cell_clicked'].indexOf(event.name) == -1){
            val = event.value; evn = event.name;
            valtype = Object.prototype.toString.call(val);
-           /*if(valtype == '[object Object]'){ document.debugevent = event;
-           }*/
            // if event value is non-atomic, replace with an atomic value
-           if(event.name == 'infile'){
-             val = Object.prototype.toSource.call(val[0]);
-           } else if(event.name.indexOf('-input-click') != -1){
+           if(evn == 'infile'){
+             //document.debugevent = event;
+             val = 1;
+           } else if(evn.indexOf('-input-click') != -1){
              evn = 'downloadfile'; val = 1;
            } else if(['[object Number]','[object String]','[object Boolean]']
             .indexOf(valtype) == -1){
@@ -48,5 +52,8 @@ $(document).on('shiny:inputchanged', function(event) {
                 val = valtype;}
             }
             ga('set', 'dimension2', new Date().getTime());
-            ga('send','event',evn, val, event.name, val);}
+            ga('send','event',evn, val, event.name,1
+                //JSON.stringify(event.value)
+                );
+         }
 });
