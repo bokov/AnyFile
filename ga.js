@@ -24,6 +24,7 @@ ga('create', 'UA-149767044-1', 'auto');
 ga('send', 'pageview');
 
 $(document).on('shiny:inputchanged', function(event) {
+     document.lastevent = event;
      ga('send','event',shinyid + '_' + new Date().getTime(),
      event.name, event.value, 'xxx');
   });
