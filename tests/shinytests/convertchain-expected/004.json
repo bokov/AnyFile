@@ -1,0 +1,29 @@
+{
+  "input": {
+    "convert": 0,
+    "download_clicked": "",
+    "import": 1,
+    "infile": {
+      "name": [
+        "iris.xls"
+      ],
+      "size": [
+        21504
+      ],
+      "type": [
+        "application/vnd.ms-excel"
+      ],
+      "datapath": [
+        "0.xls"
+      ]
+    },
+    "saveas": "rda",
+    "which": 1
+  },
+  "output": {
+
+  },
+  "export": {
+
+  }
+}

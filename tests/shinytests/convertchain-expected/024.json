@@ -1,0 +1,29 @@
+{
+  "input": {
+    "convert": 4,
+    "download_clicked": "",
+    "import": 5,
+    "infile": {
+      "name": [
+        "021.download"
+      ],
+      "size": [
+        12349
+      ],
+      "type": [
+        ""
+      ],
+      "datapath": [
+        "0.download"
+      ]
+    },
+    "saveas": "json",
+    "which": 1
+  },
+  "output": {
+
+  },
+  "export": {
+
+  }
+}

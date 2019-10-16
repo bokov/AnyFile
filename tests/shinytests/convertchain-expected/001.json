@@ -1,0 +1,16 @@
+{
+  "input": {
+    "convert": 0,
+    "download_clicked": "",
+    "import": 0,
+    "infile": null,
+    "saveas": "csv",
+    "which": 1
+  },
+  "output": {
+
+  },
+  "export": {
+
+  }
+}

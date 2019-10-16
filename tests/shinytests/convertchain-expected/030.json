@@ -1,0 +1,29 @@
+{
+  "input": {
+    "convert": 6,
+    "download_clicked": "",
+    "import": 6,
+    "infile": {
+      "name": [
+        "026.download"
+      ],
+      "size": [
+        14459
+      ],
+      "type": [
+        ""
+      ],
+      "datapath": [
+        "0.download"
+      ]
+    },
+    "saveas": "yml",
+    "which": 1
+  },
+  "output": {
+
+  },
+  "export": {
+
+  }
+}

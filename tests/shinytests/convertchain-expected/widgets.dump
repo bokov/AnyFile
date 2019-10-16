@@ -1,0 +1,4 @@
+widgets <-
+structure(list(input = c("infile", "which", "import", "saveas", 
+"convert", "download_clicked"), output = c("download", "preview"
+)), .Names = c("input", "output"))

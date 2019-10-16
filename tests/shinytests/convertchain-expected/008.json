@@ -1,0 +1,29 @@
+{
+  "input": {
+    "convert": 1,
+    "download_clicked": "",
+    "import": 2,
+    "infile": {
+      "name": [
+        "006.download"
+      ],
+      "size": [
+        1086
+      ],
+      "type": [
+        ""
+      ],
+      "datapath": [
+        "0.download"
+      ]
+    },
+    "saveas": "rda",
+    "which": 1
+  },
+  "output": {
+
+  },
+  "export": {
+
+  }
+}
