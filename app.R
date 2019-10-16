@@ -71,7 +71,8 @@ ui <- fluidPage(
                          ," into which you can convert it.")
                       ,fileInput("infile"
                                  ,div("Choose a file to upload and convert to a"
-                                      ," format of your choice")
+                                      ," format of your choice" #,HTML('&nbsp;')
+                                      )
                                  ,multiple = FALSE,width = '100%'
                                  ))
                ,column(1))
@@ -86,31 +87,28 @@ ui <- fluidPage(
                               ," the first one it finds.")
                            ,numericInput('which',span('Which sheet or table? '
                                          ,'(if in doubt, you can leave it as-is'
-                                         ,' and just click the button below)')
+                                         ,' and just click the button below) '
+                                         #,HTML('&nbsp;')
+                                         )
                                          ,min=1,max=20,value=1,width='100%')
                            ,br()
-                           ,actionButton('import','Interpret File'))
+                           ,actionButton('import','Interpret File')
+                           ,hidden(div(hr()
+                                      ,selectInput('saveas','Convert to:'
+                                                   ,choices = exportformats
+                                                   ,selected = 'csv')
+                                      #,HTML('&nbsp;')
+                                      ,actionButton('convert','Convert File')
+                                      ,hidden(
+                                        span(downloadButton(
+                                          'download','Download Converted File')
+                                          ,id='downloaddiv')),id='convertdiv'))
+                           )
                     ,column(1),id='importdiv'))
    ,hidden(fluidRow(column(1),column(10,hr(),bsCollapsePanel(span("Preview"
                                                        ,icon('angle-down'))
                                                   ,dataTableOutput('preview')))
                     ,column(1),id='previewrow'))
-   ,fluidRow(# + File Download ####
-            column(1)
-            ,column(10,hidden(div(hr()
-                                 ,selectInput('saveas','Convert to:'
-                                              ,choices = exportformats
-                                              ,selected = 'csv')
-                                  ,br()
-                                  ,actionButton('convert','Convert File')
-                                  ,id='convertdiv'))
-                    ,hidden(div(hr()
-                                ,downloadButton('download'
-                                               ,'Download Converted File')
-                                ,id='downloaddiv'))
-                    )
-            ,column(1)
-            )
 )
 
 # Server ####
