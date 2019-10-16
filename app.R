@@ -118,13 +118,13 @@ server <- function(input, output, session) {
   # reactive values ####
   rv <- reactiveValues(disclaimerAgreed=F);
   # user agreement ####
-  shinyalert('User Agreement',text=helptext$disclaimer
-             ,html=T,confirmButtonText = 'I agree',confirmButtonCol = hcol
-             ,className = 'dfDisclaimer',closeOnEsc = F
-             ,animation = 'slide-from-top'
-             ,callbackR = function() {
-               rv[['disclaimerAgreed']] <- T;
-               show('infile')});
+  if(!isTRUE(getOption("shiny.testmode"))&&!file.exists('.testmode')) {
+    shinyalert('User Agreement',text=helptext$disclaimer
+               ,html=T,confirmButtonText = 'I agree',confirmButtonCol = hcol
+               ,className = 'dfDisclaimer',closeOnEsc = FALSE
+               ,animation = 'slide-from-top',callbackR = function() {
+                 rv[['disclaimerAgreed']] <- TRUE;
+                 show('infile')})} else rv[['disclaimerAgreed']] <- TRUE;
 
   # record file info ####
   observeEvent(c(input$infile,rv$disclaimerAgreed,input$which),{
