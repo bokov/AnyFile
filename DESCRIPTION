@@ -1,0 +1,13 @@
+Imports:
+  shiny,
+  shinytest,
+  shinyjs,
+  shinyalert,
+  dplyr,
+  DT,
+  shinyBS,
+  data.table,
+  markdown
+  
+Remotes:
+  bokov/rio
