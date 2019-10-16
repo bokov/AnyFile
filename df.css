@@ -14,6 +14,7 @@ a:hover { color: #004067;}
 
 /* header in accordance with UT header styling */
 h3 {font-family: "Cardo", "Times New Roman", serif;}
+.row:first-of-type{padding-top: 1em;}
 
 /* The next few are to line up the page header */
 #apptitle {
@@ -164,6 +165,18 @@ ul.nav>li>a {
   padding-left: 10px;
   vertical-align: middle;
 }
+
+/* side-by-side selectize widget */
+#convertdiv, .form-group { display: table-row;}
+/*#convertdiv>.form-group {display: table-cell; }*/
+.selectize-input {width: 6em; padding-top: 0.5em; padding-bottom: 0 !important;}
+.control-label, #convertdiv>.form-group>div, .selectize-control.single, #convertdiv>.form-group, #convertdiv>#convert { 
+  display: table-cell; text-align: justify; vertical-align: middle; padding-right: 10px; }
+#convertdiv>.shiny-input-container{height: 5em; width: auto;}
+.btn {vertical-align: top; line-height: 1.2;}
+.btn-file{padding-bottom: 0.2em; padding-top: 0.2em; margin: 0; line-height: 1;}
+.input-group{padding:0; margin: 0; line-height: 1;}
+input.form-control{padding-top: 0; padding-bottom: 0; height: 1.55em; line-height: 1;}
 
 /* To make the Input Data and Output Preview contents more compact */
 
