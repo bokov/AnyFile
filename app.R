@@ -88,7 +88,6 @@ ui <- fluidPage(
                            ,numericInput('which',span('Which sheet or table? '
                                          ,'(if in doubt, you can leave it as-is'
                                          ,' and just click the button below) '
-                                         #,HTML('&nbsp;')
                                          )
                                          ,min=1,max=20,value=1,width='100%')
                            ,br()
@@ -100,7 +99,7 @@ ui <- fluidPage(
                                       #,HTML('&nbsp;')
                                       ,actionButton('convert','Convert File')
                                       ,hidden(
-                                        span(downloadButton(
+                    ,hidden(textInput('download_clicked',label = '',value = ''))
                                           'download','Download Converted File')
                                           ,id='downloaddiv')),id='convertdiv'))
                            )
@@ -135,6 +134,11 @@ server <- function(input, output, session) {
   
   # change in output format ####
   observeEvent(input$saveas, hide('downloaddiv'));
+  
+  # detect download ####
+  onclick('download',updateTextInput(session,'download_clicked'
+                                     ,value = as.numeric(Sys.time()))
+          ,add = TRUE);
 
   # read with rio ####
   observeEvent(input$import,{
@@ -190,6 +194,8 @@ server <- function(input, output, session) {
                                 ,dom='Bfrtip'
                                 ))
     },server=FALSE);
+  
+
   # debug ####
   observeEvent(input$debug,{
     browser();
