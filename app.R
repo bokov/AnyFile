@@ -43,7 +43,7 @@ ui <- fluidPage(
    ,useShinyalert()
    ,fluidRow(
      # + Title etc. ####
-     column(1,img(src='sitelogo_color.png',width='45px'),br()
+     column(1,img(src='sitelogo_color.png',width='110px'),br()
             ,if(debug) actionButton('debug','Debug') else c())
      ,column(2,h3("AnyFile",id='apptitle')
              ,"A resource for researchers")
