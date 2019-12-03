@@ -60,11 +60,14 @@ isfileyaml <- function(file,...){
 
 try_import <- function(file,which=1,
                        trytext=c("xml","html","r","json","pzfx"),
-                       trybin=c("dbf","dta","rda","rds","sas7bdat","sav","xls",
-                                "xpt","matlab","fst","feather"),
+                       trybin=c("dta","rda","rds","sas7bdat",
+                                "sav","xls","xpt","matlab","fst",
+                                "feather","dbf"),
                        verbose=1,...){
   # first try importing based on file extension
   out <- try(import(file = file, which = which, ...),silent=TRUE)
+  if(is(out,'try-error')) message('Default read errored with:\n',
+                                  attr(out,'condition'))
   if(!is(out,'try-error')) return(out)
   # zip formats
   switch(c(isfilezip(file,return_ziptype = TRUE),'NOTZIP')[1],
@@ -102,10 +105,11 @@ try_import <- function(file,which=1,
     out <- try(import(file = file, format = ii, which = which, ...)
                ,silent=TRUE)
     if(is(out,'try-error')){
-      out <- try(import(rv$infile,format=ii,which=1),silent=TRUE)
+      out <- try(import(file = file,format=ii,which=1, ...),silent=TRUE)
       if(!is(out,'try-error')){
-        if (verbose > 0) warning('Specified table does not exist in file, ',
-                                 'extracting first available table instead')
+        comment(out) <- c('Specified table does not exist in file, ',
+                          'extracting first available table instead')
+        if (verbose > 0) warning(comment(out))
         break}
     } else break}
   return(out)
