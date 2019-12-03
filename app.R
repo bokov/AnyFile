@@ -43,18 +43,18 @@ ui <- fluidPage(
    ,useShinyalert()
    ,fluidRow(
      # + Title etc. ####
-     column(1,img(src='sitelogo_color.png',width='110px'),br()
-            ,if(debug) actionButton('debug','Debug') else c())
-     ,column(2,h3("AnyFile",id='apptitle')
-             ,"A resource for researchers")
-     ,column(8,em('A free, open-source webapp by Alex Bokov, PhD'
-                  ,'made possible by support from'
-                  ,'NIH/NCATS UL1TR001120 (IIMS) and the'
-                  ,'Long School of Medicine KL2 Award.'
-                  ,'Makes use of the',a('rio library'
-                                ,href='https://github.com/leeper/rio')
-                  ,' by Thomas J. Leeper, PhD.'
-                  ,' Source code available on',a('GitHub',href=gitlink
+     column(1)
+     ,column(2,img(src='sitelogo_color.png',width='100%',maxwidth='100vw'),br()
+             ,if(debug) actionButton('debug','Debug') else c())
+     ,column(8,h3("AnyFile",id='apptitle')
+             ,em('A free, open-source webapp by Alex Bokov, PhD'
+                 ,'made possible by support from'
+                 ,'NIH/NCATS UL1TR001120 (IIMS) and the'
+                 ,'Long School of Medicine KL2 Award.'
+                 ,'Uses the',a('rio'
+                               ,href='https://github.com/leeper/rio')
+                 ,' library by Thomas J. Leeper, PhD.'
+                 ,' Source code available on',a('GitHub',href=gitlink
                                                ,target='_blank')))
      ,column(1))
      ,fluidRow(# + File Upload ####
@@ -101,6 +101,8 @@ ui <- fluidPage(
                                       ,actionButton('convert','Convert File')
                                       ,hidden(textInput('download_clicked'
                                                         ,label = '',value = ''))
+                                      ,hidden(span(id='plswait'
+                                                   ,'Converting...'))
                                       ,hidden(
                                         span(downloadButton(
                                           'download','Download Converted File')
@@ -154,6 +156,9 @@ server <- function(input, output, session) {
                 your file as well.
                ',type='warning')
       } else {
+        if(!is.null(comment(readfile))){
+          showNotification(paste0(comment(readfile),collapse=' ')
+                           ,type='warning')};
         rv$readfile <- readfile;
         show('convertdiv'); show('previewrow')
         hide('downloaddiv');
@@ -162,6 +167,7 @@ server <- function(input, output, session) {
   
   # convert with rio ####
   observeEvent(input$convert,{
+    show('plswait');
     out <- setNames(rv$readfile,nm=gsub('\\.','_'
                                             ,make.names(names(rv$readfile)
                                                         ,unique = TRUE)));
@@ -176,6 +182,7 @@ server <- function(input, output, session) {
     result <- try(export(out
                       ,file = tempfile(fileext = paste0('.',input$saveas))
                       ,format=input$saveas));
+    hide('plswait');
     if(is(result,'try-error')) shinyalert('Error converting file'
                                           ,as.character(result))
     else {
